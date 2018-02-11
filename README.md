@@ -11,8 +11,6 @@ as well as a glue-header which includes several basic Linux Kernel headers and f
 This was tested on Kernel `v4.15-rc6`, and should probably work on any Kernel in the `v4.*` series.
 This is known not to work on any version prior to `v4.*`, but the fixes should be minimal.
 
-Currently, the glue header expects `-std=c++11` or later. This restriction can be lifted (probably).
-
 # Integration #
 `include` the Makefile anywhere in the buildsystem, and `#include "glue.hpp"` in your code.
 After that, anywhere in the kernel where `obj-y += name.o` is specified, it will also look for `name.cpp` to compile.

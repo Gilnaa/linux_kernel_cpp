@@ -23,9 +23,10 @@
 # Initialize C++ flags
 cxxflags-y :=
 subdir-cxxflags-y :=
+
 # We include `c_flags` here in order to inherit various configurations.
 # Not all C flags are valid in this context, but this should not fail builds.
-cxx_flags = $(c_flags) $(cxxflags-y) $(subdir-cxxflags-y) -fno-exceptions -fno-rtti -std=c++11
+cxx_flags = $(c_flags) $(cxxflags-y) $(subdir-cxxflags-y) -fno-exceptions -fno-rtti
 
 ifndef CONFIG_MODVERSIONS
 cmd_cc_o_cpp = $(CC) $(cxx_flags) -c -o $@ $<

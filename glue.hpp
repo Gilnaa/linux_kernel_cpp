@@ -50,75 +50,76 @@
 // ```
 #define false FALSE
 #define true TRUE
-#	include <linux/stddef.h>
+#   include <linux/stddef.h>
 #undef false
 #undef true
 
+#undef NULL
+#define NULL nullptr
 // Fix for:
 // ```
 // typedef _Bool bool;
 // ```
 typedef bool _Bool;
 #define bool BOOL;
-#	include <linux/types.h>
+#   include <linux/types.h>
 #undef bool
 
 // asmlinkage is defined to be `extern "C"`, but in one place `printk.h` uses `extern asmlinkage`.
 // This declaration ends up as `extern extern "C"`, which does not compile.
 // It's fine to undef this, because we wrap the whole thing in `extern "C" {}` anyway.
 extern "C" {
-	// We pre-include linkage so we'll be able to undef asmlinkage before printk.h would be able to use it.
-	#include <linux/linkage.h>
-	#undef asmlinkage
-	#define asmlinkage
-	#include <linux/printk.h>
+    // We pre-include linkage so we'll be able to undef asmlinkage before printk.h would be able to use it.
+    #include <linux/linkage.h>
+    #undef asmlinkage
+    #define asmlinkage
+    #include <linux/printk.h>
 }
 
 // The following declarations are a compensation for the lack of `__builtin_types_compatible_p` in C++.
 // All the template magic is copied from <type_traits>
 namespace cpp_glue {
-	template<typename, typename>
-	struct is_same { static const bool value = false; };
+    template<typename, typename>
+    struct is_same { static const bool value = false; };
 
-	template<typename T>
-	struct is_same<T, T> { static const bool value = true; };
+    template<typename T>
+    struct is_same<T, T> { static const bool value = true; };
 
-	// Remove the const qualifier
-	template<typename T>
-	struct remove_const { typedef T type; };
-	template<typename T>
-	struct remove_const<T const> { typedef T type; };
+    // Remove the const qualifier
+    template<typename T>
+    struct remove_const { typedef T type; };
+    template<typename T>
+    struct remove_const<T const> { typedef T type; };
 
-	// Remove the volatile qualifier
-	template<typename T>
-	struct remove_volatile { typedef T type; };
-	template<typename T>
-	struct remove_volatile<T volatile> { typedef T type; };
+    // Remove the volatile qualifier
+    template<typename T>
+    struct remove_volatile { typedef T type; };
+    template<typename T>
+    struct remove_volatile<T volatile> { typedef T type; };
 
-	// Remove both const and volatile
-	template<typename T>
-	struct remove_cv
-	{
-	    typedef typename
-	    remove_const<typename remove_volatile<T>::type>::type type;
-	};
+    // Remove both const and volatile
+    template<typename T>
+    struct remove_cv
+    {
+        typedef typename
+        remove_const<typename remove_volatile<T>::type>::type type;
+    };
 }
 
 #define __builtin_types_compatible_p(a, b) cpp_glue::is_same<typename cpp_glue::remove_cv<a>::type, typename cpp_glue::remove_cv<b>::type>::value
 
-// This could probably be replaced with template magic to avoid using C++11,
-// but for now there's no point.
-#define typeof decltype
+#define typeof __typeof__
 
-// We hide `new` because of function's parameter in this name.
+// We hide `new` because of a function's parameter in this name.
 #define new _new
 
 extern "C" {
-	#include <linux/string.h>
+    #include <linux/string.h>
 }
 
 #undef __builtin_types_compatible_p
 #undef typeof
 #undef new
+
 
 #endif /* __LINUX_CPP_GLUE */
